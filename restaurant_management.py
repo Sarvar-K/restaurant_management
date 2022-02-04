@@ -4,7 +4,7 @@ from config import config
 import pandas as pd
 import sql_queries as q
 from connect import parse_post_request, execute_request, get_old_values_from
-from new_validation_lib import *
+from validation_lib import *
 import datetime as d
 
 app = Flask(__name__)
