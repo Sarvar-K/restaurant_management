@@ -1,5 +1,5 @@
 import sql_queries as q
-from connect import open_connection
+from connect import get_old_values_from
 import psycopg2
 import pandas as pd
 import re
@@ -23,45 +23,6 @@ def launch_binary_search(values, value):
             return True 
 
     return False
-
-# Query-functions---------------------------------------------------------------------------
-
-def get_old_values_from(table, column, WHERE_left = None, WHERE_right = None, custom_query = None):
-
-	connection = None
-
-	try:
-
-		connection = open_connection()
-
-		if custom_query is None:
-
-			query = q.get_column(table)
-			result = pd.read_sql_query(query(column, WHERE_left, WHERE_right), connection).to_dict(orient = "list")[column]
-
-		else:
-
-			result = pd.read_sql_query(custom_query, connection).to_dict(orient = "list")[column]
-
-		result_lowercase = []
-
-		if type(result[0]) == str:
-			for i in result:
-				result_lowercase.append(i.lower())
-			result = result_lowercase
-
-
-		return result
-
-	except (Exception, psycopg2.DatabaseError) as error:
-
-		return error
-
-	finally:
-
-		if connection is not None:
-			connection.close()
-
 
 
 # Primary-functions-------------------------------------------------------------------
@@ -244,5 +205,3 @@ def check__dependencies(table, column):
 			return "This value is referenced in column {} of {} table".format(column, table)
 		return None
 	return inner
-
-print(sorted(get_old_values_from("shipments", "id"))[-1])

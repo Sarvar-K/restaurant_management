@@ -354,10 +354,33 @@ current_ingredient_amounts = '''select
 								inner join ingredients_in_stock as iis
 								on iis.shipment_id = sh.id and iis.is_active = true'''
 
-def add_shipment(): #<---
+def get_shipment_details(ingredient_id, shipment_id):
 
-	query = '''insert into shipments (supplier_id, ingredient_id, due_date, shipment_price, shipment_size)
-				values 
-					(1, 56, '2022-06-01', 44.45, 16000)'''
+	query = '''select
+					i.id as ingredient_id,
+					i.name as ingredient,
+					sh.id as shipment_id,
+					sh.shipment_size as initial_amount,
+					iis.current_amount,
+					m.name as measure,
+					sh.due_date,
+					sh.date_supplied,
+					s.name as supplier,
+					st.name as supplier_type,
+					st.id as supplier_type_id,
+					sh.shipment_price,
+					iis.is_active
+				from ingredients as i
+				inner join measures as m
+				on i.measure_id = m.id
+				inner join shipments as sh
+				on sh.ingredient_id = i.id
+				full outer join ingredients_in_stock as iis
+				on sh.id = iis.shipment_id
+				inner join suppliers as s
+				on sh.supplier_id = s.id
+				inner join supplier_types as st
+				on st.id = s.supplier_type_id
+				where ingredient_id = {} and sh.id = {}'''.format(ingredient_id, shipment_id)
 
 	return query

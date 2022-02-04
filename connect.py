@@ -1,6 +1,7 @@
 import psycopg2
 from config import config
 import pandas as pd
+import sql_queries as q
 #import validation_lib as v
 
 def open_connection():
@@ -8,8 +9,7 @@ def open_connection():
     connection = psycopg2.connect(**parameters)
     return connection
 
-def do_nothing(x):
-    return x
+def do_nothing(x): return x
 
 def parse_post_request(request): # query_params for post request
 
@@ -56,6 +56,71 @@ def execute_request(query, result_format, success_status_code, query_params = []
             connection.close()
 
     return result, status
+
+def get_old_values_from(table, column, WHERE_left = None, WHERE_right = None, custom_query = None):
+
+    connection = None
+
+    try:
+
+        connection = open_connection()
+
+        if custom_query is None:
+
+            query = q.get_column(table)
+            result = pd.read_sql_query(query(column, WHERE_left, WHERE_right), connection).to_dict(orient = "list")[column]
+
+        else:
+
+            result = pd.read_sql_query(custom_query, connection).to_dict(orient = "list")[column]
+
+        result_lowercase = []
+
+        if type(result[0]) == str:
+            for i in result:
+                result_lowercase.append(i.lower())
+            result = result_lowercase
+
+
+        return result
+
+    except (Exception, psycopg2.DatabaseError) as error:
+
+        return error
+
+    finally:
+
+        if connection is not None:
+            connection.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
